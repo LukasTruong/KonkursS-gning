@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet ef *)",
+      "Bash(npx create-next-app@14 frontend --typescript --tailwind --app --no-src-dir --eslint --import-alias \"@/*\")",
+      "Bash(where node *)",
+      "Bash(where npm *)",
+      "Bash(npm --version)",
+      "PowerShell(Get-Command node -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command npm -ErrorAction SilentlyContinue)",
+      "PowerShell(node --version)",
+      "PowerShell(npm --version)",
+      "Bash(mkdir \"c:\\\\Users\\\\Timeoff\\\\Documents\\\\GitHub\\\\KonkursS-gning\\\\frontend\\\\app\\\\person\\\\[id]\")",
+      "Bash(mkdir \"c:\\\\Users\\\\Timeoff\\\\Documents\\\\GitHub\\\\KonkursS-gning\\\\frontend\\\\app\\\\company\\\\[cvr]\")"
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: konkurscheck
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: changeme
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d konkurscheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend/KonkursCheck.Api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Database=konkurscheck;Username=app;Password=changeme"
+      ConnectionStrings__Redis: "redis:6379"
+      Cvr__BaseUrl: "https://data.virk.dk/dataudtræk/cvr-permanent/"
+      ASPNETCORE_ENVIRONMENT: Production
+
+  worker:
+    build:
+      context: ./backend/KonkursCheck.Worker
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Database=konkurscheck;Username=app;Password=changeme"
+      ConnectionStrings__Redis: "redis:6379"
+      Cvr__BaseUrl: "https://data.virk.dk/dataudtræk/cvr-permanent/"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: "http://api:8080"
+
+volumes:
+  pgdata:
